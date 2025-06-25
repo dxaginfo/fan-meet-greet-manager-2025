@@ -1,0 +1,246 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model representing all system users
+model User {
+  id                   String           @id @default(uuid())
+  email                String           @unique
+  password             String
+  firstName            String
+  lastName             String
+  role                 UserRole
+  profileImage         String?
+  bio                  String?
+  phoneNumber          String?
+  isVerified           Boolean          @default(false)
+  isActive             Boolean          @default(true)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  
+  // Relations
+  artistProfile        Artist?
+  tickets              Ticket[]
+  refreshTokens        RefreshToken[]
+  notifications        Notification[]
+  events               Event[]          @relation("EventOrganizer")
+  attendeeNotes        AttendeeNote[]   @relation("StaffMember")
+  attendeeNoteSubjects AttendeeNote[]   @relation("AttendeeSubject")
+  merchandise          Merchandise[]    @relation("MerchandiseOwner")
+  merchandiseOrders    MerchandiseOrder[] @relation("MerchandiseOrderer")
+}
+
+// User roles enum
+enum UserRole {
+  ADMIN
+  ARTIST
+  MANAGER
+  STAFF
+  FAN
+}
+
+// Artist model for extended artist info
+model Artist {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  stageName       String
+  genre           String?
+  spotifyId       String?
+  instagramHandle String?
+  twitterHandle   String?
+  websiteUrl      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events          Event[]
+}
+
+// Event model for meet & greet events
+model Event {
+  id              String        @id @default(uuid())
+  title           String
+  description     String?
+  startDate       DateTime
+  endDate         DateTime
+  location        String?
+  status          EventStatus   @default(UPCOMING)
+  artistId        String
+  organizerId     String
+  capacity        Int
+  price           Decimal       @default(0)
+  isVirtual       Boolean       @default(false)
+  virtualMeetingUrl String?
+  virtualMeetingPassword String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  artist          Artist        @relation(fields: [artistId], references: [id])
+  organizer       User          @relation("EventOrganizer", fields: [organizerId], references: [id])
+  timeSlots       TimeSlot[]
+  tickets         Ticket[]
+  merchandise     Merchandise[]
+}
+
+// Event status enum
+enum EventStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Time slot model for event scheduling
+model TimeSlot {
+  id              String        @id @default(uuid())
+  eventId         String
+  startTime       DateTime
+  endTime         DateTime
+  capacity        Int
+  availableSpots  Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tickets         Ticket[]
+}
+
+// Ticket model for event attendance
+model Ticket {
+  id              String        @id @default(uuid())
+  eventId         String
+  userId          String
+  timeSlotId      String?
+  status          TicketStatus  @default(RESERVED)
+  qrCode          String        @unique
+  purchaseDate    DateTime      @default(now())
+  price           Decimal
+  checkInTime     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  event           Event         @relation(fields: [eventId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  timeSlot        TimeSlot?     @relation(fields: [timeSlotId], references: [id])
+  merchandiseOrders MerchandiseOrder[]
+}
+
+// Ticket status enum
+enum TicketStatus {
+  RESERVED
+  PAID
+  CANCELLED
+  CHECKED_IN
+  COMPLETED
+}
+
+// Merchandise model for event merchandise
+model Merchandise {
+  id                String      @id @default(uuid())
+  eventId           String?
+  ownerId           String
+  name              String
+  description       String?
+  price             Decimal
+  imageUrl          String?
+  availableQuantity Int
+  isAvailableForPreorder Boolean @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  // Relations
+  event             Event?      @relation(fields: [eventId], references: [id])
+  owner             User        @relation("MerchandiseOwner", fields: [ownerId], references: [id])
+  orders            MerchandiseOrder[]
+}
+
+// Merchandise order model
+model MerchandiseOrder {
+  id              String        @id @default(uuid())
+  merchandiseId   String
+  ticketId        String
+  userId          String
+  quantity        Int
+  totalPrice      Decimal
+  status          OrderStatus   @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  merchandise     Merchandise   @relation(fields: [merchandiseId], references: [id])
+  ticket          Ticket        @relation(fields: [ticketId], references: [id])
+  user            User          @relation("MerchandiseOrderer", fields: [userId], references: [id])
+}
+
+// Order status enum
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  FULFILLED
+}
+
+// Notification model
+model Notification {
+  id              String        @id @default(uuid())
+  userId          String
+  title           String
+  message         String
+  type            NotificationType
+  isRead          Boolean       @default(false)
+  link            String?
+  createdAt       DateTime      @default(now())
+  
+  // Relations
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Notification type enum
+enum NotificationType {
+  EVENT_REMINDER
+  TICKET_PURCHASED
+  EVENT_UPDATED
+  EVENT_CANCELLED
+  CHECKIN_REMINDER
+  MERCHANDISE_ORDER
+  SYSTEM_MESSAGE
+}
+
+// RefreshToken model for JWT auth
+model RefreshToken {
+  id              String        @id @default(uuid())
+  userId          String
+  token           String        @unique
+  expiresAt       DateTime
+  issuedAt        DateTime      @default(now())
+  revokedAt       DateTime?
+  
+  // Relations
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// AttendeeNote model for staff to track fan interactions
+model AttendeeNote {
+  id              String        @id @default(uuid())
+  staffId         String
+  attendeeId      String
+  note            String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  staffMember     User          @relation("StaffMember", fields: [staffId], references: [id])
+  attendee        User          @relation("AttendeeSubject", fields: [attendeeId], references: [id])
+}
