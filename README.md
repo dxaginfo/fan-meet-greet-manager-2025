@@ -1,61 +1,47 @@
 # Fan Meet & Greet Manager
 
-A comprehensive web application for managing fan meet and greet events for musicians and artists. This platform helps organize, schedule, and track fan interactions for both in-person and virtual events.
+A comprehensive web application for managing fan meet and greet events in the music industry. This platform helps artists, managers, and event staff organize, schedule, and execute successful fan interactions.
 
-## 🌟 Features
+## Features
 
-### For Artists & Managers
-- Create customizable meet & greet events with different access tiers
-- Manage time slots and schedules
-- Send mass communications to registered fans
-- Access attendee information for personalized interactions
-- View analytics and reports on event performance
+- **Event Creation & Management**: Create, edit, and manage meet & greet events with customizable time slots
+- **Fan Registration**: Allow fans to register and purchase tickets for meet & greet events
+- **Check-in System**: Mobile-friendly check-in process with QR code scanning
+- **Virtual Meetings**: Support for both in-person and virtual meet & greet sessions
+- **Merchandise Management**: Pre-order and on-site merchandise sales tracking
+- **Schedule Management**: Organize time slots and manage attendee flow
+- **Notification System**: Automated reminders and updates for fans and staff
+- **Analytics Dashboard**: Track event performance, attendance, and revenue
 
-### For Fans
-- Register for meet & greets with favorite artists
-- Receive digital tickets and calendar reminders
-- Select specific time slots based on availability
-- Pre-order merchandise for signing
-- Join virtual events from anywhere in the world
-- Track past and upcoming meet & greet experiences
-
-### For Event Staff
-- Check in attendees using mobile scanning
-- Manage virtual waiting rooms
-- Track attendance and handle issues in real-time
-- Add notes to fan profiles for improved personalization
-
-## 🛠️ Technology Stack
-
-### Frontend
-- React.js with TypeScript
-- Material-UI for consistent design
-- Redux Toolkit for state management
-- Socket.io for real-time updates
-- FullCalendar for scheduling interface
-- Mobile-responsive design for all devices
+## Tech Stack
 
 ### Backend
 - Node.js with Express
-- RESTful API with OpenAPI specification
-- JWT authentication with refresh token rotation
-- Prisma ORM for database queries
-- Email and SMS notification services
+- TypeScript
+- PostgreSQL with Prisma ORM
+- JWT Authentication
+- RESTful API design
+- WebSocket for real-time features
 
-### Database & Infrastructure
-- PostgreSQL for relational data
-- Redis for caching and performance
-- AWS cloud infrastructure
-- Docker containerization
-- CI/CD with GitHub Actions
+### Frontend
+- React with TypeScript
+- Redux Toolkit for state management
+- React Query for data fetching
+- Material-UI components
+- Responsive design
+- PWA capabilities
 
-## 📋 Getting Started
+### DevOps
+- Docker for containerization
+- GitHub Actions for CI/CD
+- AWS deployment
+
+## Getting Started
 
 ### Prerequisites
 - Node.js (v16+)
-- npm or yarn
 - PostgreSQL
-- Redis
+- npm or yarn
 
 ### Installation
 
@@ -67,60 +53,87 @@ cd fan-meet-greet-manager-2025
 
 2. Install dependencies
 ```bash
-# Install backend dependencies
+# Install server dependencies
 cd server
 npm install
 
-# Install frontend dependencies
+# Install client dependencies
 cd ../client
 npm install
 ```
 
 3. Configure environment variables
 ```bash
-# Copy sample env files
-cp server/.env.example server/.env
-cp client/.env.example client/.env
+# Server environment
+cd server
+cp .env.example .env
+# Edit .env with your database credentials and other settings
 
-# Edit the .env files with your configuration
+# Client environment
+cd ../client
+cp .env.example .env
+# Edit .env with your API URL and other settings
 ```
 
 4. Set up the database
 ```bash
 cd server
-npm run db:migrate
-npm run db:seed # Optional: adds sample data
+npx prisma migrate dev
 ```
 
-5. Start the development servers
+5. Start development servers
 ```bash
-# Start backend server
-cd server
+# Start server (from server directory)
 npm run dev
 
-# Start frontend development server
-cd ../client
+# Start client (from client directory)
 npm start
 ```
 
-6. Access the application at `http://localhost:3000`
+6. Access the application
+- Backend API: http://localhost:8000
+- Frontend: http://localhost:3000
 
-## 🚀 Deployment
+## Deployment
 
-This application can be deployed using Docker and our provided configuration files.
-
+### Docker Deployment
+1. Build the Docker images
 ```bash
-# Build and start all services
-docker-compose up -d
+docker compose build
 ```
 
-For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
+2. Start the containers
+```bash
+docker compose up -d
+```
 
-## 📱 Mobile Responsiveness
+### Manual Deployment
+1. Build the client
+```bash
+cd client
+npm run build
+```
+
+2. Set up production environment for the server
+```bash
+cd server
+npm run build
+```
+
+3. Start the production server
+```bash
+npm start
+```
+
+## API Documentation
+
+API documentation is available at `/api/docs` when the server is running. It includes detailed information about all endpoints, request/response formats, and authentication requirements.
+
+## Mobile Responsiveness
 
 The application is designed to work on all device sizes, from mobile phones to desktop computers, ensuring fans can access meet & greet events from any device.
 
-## 🔒 Security Features
+## Security Features
 
 - JWT-based authentication with short expiration and rotation
 - HTTPS enforcement
@@ -131,7 +144,7 @@ The application is designed to work on all device sizes, from mobile phones to d
 - Role-based access control
 - Regular security audits
 
-## 🌐 Integration Options
+## Integration Options
 
 The platform is designed to integrate with common music industry tools:
 - Spotify (for artist verification)
@@ -140,10 +153,18 @@ The platform is designed to integrate with common music industry tools:
 - Calendar services (Google, Apple, Outlook)
 - Payment processors (Stripe)
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 👥 Contributing
+## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
+
+## Contact
+
+For questions or support, please contact dxag.info@gmail.com
